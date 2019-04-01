@@ -46,11 +46,10 @@
 			scene.add(light2);
 
 			// OrbitControls の追加
-			controls = new THREE.OrbitControls(camera);
-			controls.userPan = false;
-			controls.userPanSpeed = 0.0;
-			controls.maxDistance = 500.0;
-			controls.maxPolarAngle = Math.PI * 0.495;
+			//controls = new THREE.OrbitControls(camera);
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+			controls.enableDamping = true;
+			controls.dampingFactor = 0.2;
 			controls.autoRotate = true;
 			controls.autoRotateSpeed = 0.35;
 
