@@ -46,7 +46,6 @@
 			scene.add(light2);
 
 			// OrbitControls の追加
-			//controls = new THREE.OrbitControls(camera);
 			controls = new THREE.OrbitControls( camera, renderer.domElement );
 			controls.enableDamping = true;
 			controls.dampingFactor = 0.2;
@@ -65,7 +64,7 @@
 			// モデルをロード
 			loader.load(url, (gltf) => {
 				geometry = gltf.scene;
-
+				// スケールを変更
 				geometry.scale.set(10,10,10);
 
 				cantScrollTouchDevice();
