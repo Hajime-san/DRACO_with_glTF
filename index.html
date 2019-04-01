@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+	<title>DRACO with glTF</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="reset.css">	
+	<script src="three.min.js"></script>
+	<script src="draco_decoder.js"></script>
+	<script src="DRACOLoader.js"></script>
+	<script src="OrbitControls.js"></script>
+	<script src="GLTFLoader.js"></script>
+	<script>
+		let renderer,   // レンダラ
+			loader,		// ローダー
+			canvas,		
+			scene,     // シーン
+			camera,   // カメラ
+			controls,  // OrbitControls
+			url,        // glTFのパス
+			geometry,  // シーンの代替変数
+			width,     // ウィンドウのwidth
+			height;    // ウィンドウのheight
+		function init(){
+
+			canvas = document.getElementById('model');
+
+			// レンダラの作成
+			renderer = new THREE.WebGLRenderer();
+			canvas.appendChild(renderer.domElement);
+			renderer.antialias = true;
+			// canvasをクリアする色
+			renderer.setClearColor(0x000000, 1.0);
+
+			// シーンの作成
+			scene  = new THREE.Scene();
+			// カメラの作成と追加
+			camera = new THREE.PerspectiveCamera(45, width / height, 1, 2000);
+			camera.position.set(5, 10, -10);
+
+			// ライトの作成と追加
+			const light1 = new THREE.DirectionalLight(0xffffff);
+			const light2 = new THREE.AmbientLight(0xffffff,0.43);
+			scene.add(light1);
+			scene.add(light2);
+
+			// OrbitControls の追加
+			controls = new THREE.OrbitControls(camera);
+			controls.userPan = false;
+			controls.userPanSpeed = 0.0;
+			controls.maxDistance = 500.0;
+			controls.maxPolarAngle = Math.PI * 0.495;
+			controls.autoRotate = true;
+			controls.autoRotateSpeed = 0.35;
+
+			// glTFローダー
+			loader = new THREE.GLTFLoader();
+			
+			// glTF(DRACO圧縮された)モデルを読み込む
+			loader.setDRACOLoader(new THREE.DRACOLoader('./', { type: 'js' }));
+
+			url = 'chair_comp.glb';
+
+
+			// モデルをロード
+			loader.load(url, (gltf) => {
+				geometry = gltf.scene;
+
+				geometry.scale.set(10,10,10);
+
+				cantScrollTouchDevice();
+
+				scene.add(geometry);
+
+				THREE.DRACOLoader.releaseDecoderModule();
+			});
+
+
+			tick();
+			// レンダリング
+			function tick() {
+				renderer.render(scene,camera);
+				controls.update();
+				requestAnimationFrame(tick);
+			}
+
+			onResize();
+			// リサイズイベント発生時に実行
+			window.addEventListener('resize', onResize);
+			function onResize() {
+				// サイズを取得
+				width = window.innerWidth;
+				height = window.innerHeight;
+				// レンダラーのサイズを調整する
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(width, height);
+				// カメラのアスペクト比を正す
+				camera.aspect = width / height;
+				camera.updateProjectionMatrix();
+			}
+
+			// タッチデバイスでスクロールを止める
+			function cantScrollTouchDevice(){
+				canvas.addEventListener('touchstart', (e)=> {
+				e.preventDefault();
+				}, { passive: false });
+			}
+		}
+
+			window.addEventListener('load', ()=>{ 
+				init();
+			
+			},false);
+	</script>
+</head>
+<body>
+	<div id="model"></div>
+</body>
+</html>
